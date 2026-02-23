@@ -41,10 +41,9 @@ public class Starfish
         Matrix Scale = Matrix.CreateScale(scale);
         Matrix bodyspin = Matrix.CreateRotationZ(rotation);
         Matrix movetoOrigin = Matrix.CreateTranslation(-origin.X, -origin.Y, 0f);
-        Matrix moveback = Matrix.CreateTranslation(origin.X, origin.Y, 0f);
         Matrix bodyTranslation = Matrix.CreateTranslation(position.X, position.Y, 0f);
         // Rotate --> Translate
-        Matrix bodyTransform =  movetoOrigin *  Scale * bodyspin * moveback * bodyTranslation;
+        Matrix bodyTransform =  movetoOrigin *  Scale * bodyspin * bodyTranslation;
         
             
         // update the body transformation of an arm wiggle
