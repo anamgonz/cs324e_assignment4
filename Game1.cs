@@ -1,24 +1,21 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Net.Http;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Ana_Amaton_Tree_A5;
+namespace assignment_6_fireworks;
 
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
-    
-    private Matrix view;
-    private Matrix projection;
-    private float aspectRatio;
 
-    private Tree tree1;
-    private Tree tree2;
-    private Model _tree1;
-    private Model _tree2;
-    private Model _leaf;
+    private Texture2D spark;
+    private Firework[] fireworks1;
+    private Random random = new Random();
     
+    private Firework[] fireworks2;
 
     public Game1()
     {
@@ -29,15 +26,8 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        view = Matrix.CreateLookAt(new Vector3(0.0f, 4000.0f, 2500f), 
-            new Vector3(0.0f, 2000.0f, 0.0f),
-            Vector3.Up);
-        aspectRatio = GraphicsDevice.Viewport.AspectRatio;
-        projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f),
-            aspectRatio, 1.0f, 10000.0f);
         
-        
-        
+
         base.Initialize();
     }
 
@@ -45,13 +35,15 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-        _tree1 = Content.Load<Model>("meshes/Tree_1");
-        _tree2 = Content.Load<Model>("meshes/tree_obj");
-        _leaf  = Content.Load<Model>("meshes/Fall_leaf_OBJ");
-        tree1 = new Tree(_tree1, _leaf, new Vector3(-1300.0f, 0.0f, 0.0f));
-        tree2 = new Tree(_tree2, _leaf, new Vector3(1800.0f, 0.0f, 0.0f));
-        
-        
+        spark = Content.Load<Texture2D>("spark3"); 
+        fireworks1 = new Firework[40];
+        fireworks2 = new Firework[40];
+
+        for (int i = 0; i < fireworks1.Length; i++)
+        {
+            fireworks1[i] = new Firework(spark, 500, 80);
+            fireworks2[i] = new Firework(spark, 150, 125);
+        }
     }
 
     protected override void Update(GameTime gameTime)
@@ -60,24 +52,35 @@ public class Game1 : Game
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        tree1.TreeDance(gameTime);
-        tree1.UpdateLeaves(gameTime);
+        for (int i = 0; i < fireworks1.Length; i++)
+        {
+            // expansion force for each spark
+            float fx = (float)(random.NextDouble() * 0.4 - 0.2f);
+            
+            //gravity
+            float fy = 0.098f;
+            int screenHeight = Window.ClientBounds.Height;
+            fireworks1[i].Ignite(fx, fy, screenHeight );
+            fireworks2[i].Ignite(fx, fy, screenHeight );
+        }
         
-        tree2.TreeDance(gameTime);
-        tree2.UpdateLeaves(gameTime);
-
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
-
-        tree1.draw(view, projection);
-        tree2.draw(view, projection);
+        
+        _spriteBatch.Begin();
+        
+        for (int i = 0; i < fireworks1.Length; i++)
+        {
+            fireworks1[i].Display(_spriteBatch);
+            fireworks2[i].Display(_spriteBatch);
+        }
+        
+        _spriteBatch.End();
 
         base.Draw(gameTime);
     }
-    
-    
 }
